@@ -1,0 +1,214 @@
+/*
+ * 작성: Jioh L. Jung<ziozzang@gmail.com>
+ * 문법 가이드: https://jenkins.io/doc/book/pipeline/syntax/
+ */
+//Jenkinsfile (Scripted Pipeline)
+// 도커 빌드 관련: https://jenkins.io/doc/book/pipeline/docker/
+// 글로벌 변수 관련: https://qa.nuxeo.org/jenkins/pipeline-syntax/globals
+   
+//함수
+import groovy.json.JsonOutput
+
+/*
+def message = "";
+
+def getLastCommitMessage = {
+    message = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
+}
+*/
+   
+//글로벌 변수 테스트
+env.TESTSTR = "ASDF"
+
+def gerritNotify(crudential, messages, score = null) {
+     def payload = [
+          message: messages,
+     ]
+     if (score != null) {
+		  payload["labels"] = ["Code-Review": score]
+	 }
+	 def jsonbody = JsonOutput.toJson(payload)
+     withCredentials([usernamePassword(
+                           credentialsId: "${crudential}",
+                           passwordVariable: 'PASSWORD',
+                           usernameVariable: 'USER')]) {
+        sh """
+          curl -u $USER:'$PASSWORD' -X POST -H 'Content-Type: application/json; charset=UTF-8' \
+              -d '${jsonbody}'   http://test.jioh.net:10080/a/changes/${GERRIT_CHANGE_NUMBER}/revisions/${GERRIT_PATCHSET_REVISION}/review
+        """ // --digest
+     }
+     echo "${jsonbody}"
+}
+
+
+def gogsSync(reponame, crudential) {
+   // 인증 토큰 필요함.
+   withCredentials([usernamePassword(
+                         credentialsId: "${crudential}",
+                         passwordVariable: 'PASSWORD')]) {
+		sh """
+   		  curl -X POST \
+		    -H "Authorization: token ${PASSWORD}" \
+     		-H "Content-Type: application/json" -d '{}' \
+     		http://test.jioh.net:3000/api/v1/repos/${reponame}/mirror-sync
+		"""
+   }
+}
+   
+// docker 노드에서 동작
+node('docker') {
+timestamps {	// 타임스탬프 출력
+try {
+
+
+	stage("Global Variable Test") {
+		sh "printenv"
+		echo "$TESTSTR"
+	}
+	stage('Crudentials Test') {
+		if(env.GERRIT_REFSPEC && env.GERRIT_PATCHSET_REVISION) {
+   			gerritNotify('00ccf3d4-a42e-4cc8-9b71-44ea687bd06d', "대한민국 만세 abcdsd ${BUILD_DISPLAY_NAME}")
+   			gerritNotify('00ccf3d4-a42e-4cc8-9b71-44ea687bd06d', "대한민국 만세 abcdsd ${BUILD_DISPLAY_NAME}",2)
+   		}
+	}
+   
+   
+	// Jenkinsfile 쪽 소스 코드 체크아웃 합니다.
+	checkout scm
+
+   	stage('Checkout') {
+		if(env.GERRIT_REFSPEC && env.GERRIT_PATCHSET_REVISION) {
+			echo "**** Checkout From Gerrit ****"
+			checkout([$class: 'GitSCM', clean: true,
+				branches: [[name: "$GERRIT_PATCHSET_REVISION"]],
+				doGenerateSubmoduleConfigurations: false,
+				extensions: [], submoduleCfg: [],
+ 				userRemoteConfigs: [[
+				refspec: "$GERRIT_REFSPEC",
+				url: 'http://test.jioh.net:10080/test']]
+			])
+		}
+		else {
+			echo "**** Checkout From Repository ****"
+			checkout([$class: 'GitSCM',
+				branches: [[name: "*/master"]],
+				doGenerateSubmoduleConfigurations: false,
+				extensions: [], submoduleCfg: [],
+				userRemoteConfigs: [[
+				url: 'https://github.com/ziozzang/jenkinsfile_test.git']]
+			])
+		}
+	}
+
+	stage('Check Env.') {
+		sh 'printenv'
+		sh "ls -al"
+	}
+	stage('Input Test') {
+   echo "TEST"
+
+   def userInput = input(
+		 id: 'userInput', message: 'Let\'s promote?', parameters: [
+		 [$class: 'TextParameterDefinition', defaultValue: 'uat', description: 'Environment', name: 'env'],
+		 [$class: 'TextParameterDefinition', defaultValue: 'uat1', description: 'Target', name: 'target']
+		])
+		echo ("Env: "+userInput['env'])
+		echo ("Target: "+userInput['target'])
+   
+		def checkPoint = input(
+		 id: 'Proceed1', message: 'Proceed or abort?', parameters: [
+		 [$class: 'BooleanParameterDefinition', defaultValue: false,
+		 description: '', name: 'Please confirm you agree with this']
+		])
+   
+		env.RELEASE_SCOPE = input message: 'User input required', ok: 'Release!',
+		 parameters: [choice(name: 'RELEASE_SCOPE', choices: 'patch\nminor\nmajor',
+		 description: 'What is the release scope?'
+		)]
+      	echo ("SELECT: $RELEASE_SCOPE")
+
+	}
+
+	stage('Build') {
+   		//https://jenkins.io/doc/book/pipeline/docker/
+		//sh 'docker build -t base base'
+		bi = docker.build("base", "--build-arg PACKAGE_VERSION=$BUILD_TAG base")
+		sh 'docker images'
+	}
+	stage('Test') {
+		// Docker Image Running
+   
+   		// 도커 이미지를 실행시켜서 내부에서 동작.
+		//docker.image('base').inside("-v $WORKSPACE/tmp:/opt/tmp") { }
+
+   		// 위에 만든 컨테이너 이미지를 실행시켜서 동작.
+   		bi.inside("-v $WORKSPACE/tmp:/opt/tmp") {
+   			echo "*** INSIDE START ***"
+   			sh "printenv"
+	   		sh """
+				cat /etc/*release
+				df -h
+				whoami
+				python --version
+			"""
+   			sh "cp -rf /etc/* /opt/tmp"
+   			echo "*** INSIDE END ***"
+		}
+		sh 'docker ps -a'
+   		sh "printenv"
+		sh "ls -al $WORKSPACE/tmp"
+	}
+	if (env.GERRIT_REFSPEC && env.GERRIT_PATCHSET_REVISION) {
+		stage('Gerrit Report') {
+ 			sh """
+   				#PROCESS HERE
+   			"""
+		}
+	}
+ 
+	if (!(env.GERRIT_REFSPEC && env.GERRIT_PATCHSET_REVISION)) {
+   		// Gerrit이 아닌 경우만 아티팩트 저장.
+		stage('Package') {
+   			//Ready to Package?
+			//input message: "Does staging at $url look good? ", ok: "Deploy to production"
+
+			archiveArtifacts artifacts: '**/tmp/*', fingerprint: true
+  
+   		/*
+   		//특정 레지스트리에 업로드
+   		docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+            bi.push("${env.BUILD_NUMBER}")
+            bi.push("latest")
+        }
+   		*/
+
+  
+		}
+	}
+
+	stage("Dependency Check") {
+		//dependencyCheckAnalyzer datadir: 'dependency-check-data', isFailOnErrorDisabled: true, hintsFile: '', includeCsvReports: false, includeHtmlReports: false, includeJsonReports: false, isAutoupdateDisabled: false, outdir: '', scanpath: '', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
+
+		//dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
+
+		//archiveArtifacts allowEmptyArchive: true, artifacts: '**/dependency-check-report.xml', onlyIfSuccessful: true
+	}
+
+} // try
+catch (exc) {
+	echo 'I failed'
+	throw exc
+}
+finally {
+	echo "*** FINALLY ***"
+
+	sh "docker rmi -f base || true"
+    sh "rm -rf $WORKSPACE/tmp || true"
+   
+	if (currentBuild.result == 'UNSTABLE') {
+	}
+} //finally
+} // wrap
+} // node
+
+   
