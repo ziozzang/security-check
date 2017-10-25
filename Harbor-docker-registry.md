@@ -106,5 +106,3 @@ notary는 도커에서 만든 컨텐츠 사이닝 도구 임. 컨텐츠가 변�
 
 하버에서 사용 예는 다음의 링크에 notary부분을 참조 한다
 * 참고 문서: https://github.com/vmware/harbor/blob/master/docs/user_guide.md
-* 참고 문서: https://docs.docker.com/engine/security/trust/content_trust/용법은
-* 참고 문서: https://docs.docker.com/engine/security/trust/content_trust/
