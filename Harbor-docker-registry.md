@@ -38,9 +38,53 @@ vmware harbor는 clair를 통해서 도커 cve체크가 가능함. dmz존에 두
 Clair 데이터베이스는 익스포트 임포트가 가능함
  * 관련 문서: https://github.com/vmware/harbor/blob/master/docs/import_vulnerability_data.md
 
-Security check 는 api가 제공되므로 아래의 api를 사용 하면 됨.(퍼블릭의 경우에는 로그인 파라미터 없이도 요청 가능) severity가 1인경우는 high이므로 주의 요망. 하지만 fixedVersion 이 존재 하지 않는 경우는 업데이트를 할수가 없는 상태임. (이 경우는 정책적으로 무시 하던가 기다리는 방법을 써야 함)
+Security check 는 api가 제공되므로 아래의 api를 사용 하면 됨.(퍼블릭의 경우에는 로그인 파라미터 없이도 요청 가능) severity가 5인경우는 high이므로 주의 요망. 하지만 fixedVersion 이 존재 하지 않는 경우는 업데이트를 할수가 없는 상태임. (이 경우는 정책적으로 무시 하던가 기다리는 방법을 써야 함)
 
+## 요약 시큐리티 정보
 
+아래는 요약 정보를 보여 줌. 이중에 스캔 오버뷰 쪽을 보면 확인이 가능함.
+
+```
+# curl https://test.jioh.net/api/repositories/test/gerrit/tags/latest
+{
+  "digest": "sha256:bf27f30bbb338d1f61d1954812a4fd1bcd2cbd9407c667ab307f52ae56aefa5e",
+  "name": "latest",
+  "architecture": "amd64",
+  "os": "linux",
+  "docker_version": "17.06.1-ce",
+  "author": "zsx \u003cthinkernel@gmail.com\u003e",
+  "created": "2017-10-11T09:59:35.804546459Z",
+  "signature": null,
+  "scan_overview": {
+    "image_digest": "sha256:bf27f30bbb338d1f61d1954812a4fd1bcd2cbd9407c667ab307f52ae56aefa5e",
+    "scan_status": "finished",
+    "job_id": 10,
+    "severity": 5,
+    "components": {
+      "total": 75,
+      "summary": [
+        {
+          "severity": 1,
+          "count": 73
+        },
+        {
+          "severity": 2,
+          "count": 1
+        },
+        {
+          "severity": 5,
+          "count": 1
+        }
+      ]
+    },
+    "details_key": "c44db1a15c6be030901515f5cc3f289c10b864bf0fa7db17931de460e6f71cce",
+    "creation_time": "2017-10-25T06:37:30Z",
+    "update_time": "2017-10-25T07:00:19Z"
+  }
+}
+```
+
+## 상세 시큐리티 정보
 ```
 # curl https://test.jioh.net/api/repositories/test/gogs/tags/latest/vulnerability/details
 [
