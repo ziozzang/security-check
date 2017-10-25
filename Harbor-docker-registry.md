@@ -103,3 +103,8 @@ Security check 는 api가 제공되므로 아래의 api를 사용 하면 됨.(�
 # notary 설정
 notary는 도커에서 만든 컨텐츠 사이닝 도구 임. 컨텐츠가 변조 되는지 확인이 가능한 보안 도구로 향후 컨테이너 이미지 사이닝을 하는데 도움이 될수 있을 것임.
 * 참고 문서: https://docs.docker.com/engine/security/trust/content_trust/
+
+하버에서 사용 예는 다음의 링크에 notary부분을 참조 한다
+* 참고 문서: https://github.com/vmware/harbor/blob/master/docs/user_guide.md
+* 참고 문서: https://docs.docker.com/engine/security/trust/content_trust/용법은
+* 참고 문서: https://docs.docker.com/engine/security/trust/content_trust/
