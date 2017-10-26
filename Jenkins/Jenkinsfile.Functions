@@ -35,3 +35,58 @@ def harborRequestScanAll(crudential) {
         return message
     }
 }
+
+////////////////
+
+import groovy.json.JsonSlurper 
+def harborScanResultDetail (crudential, repo, tags="latest") {
+    withCredentials([usernamePassword(
+                    credentialsId: "${crudential}",
+                    passwordVariable: 'PASSWORD',
+                    usernameVariable: 'USER')]) {
+        message = sh(
+            returnStdout: true,
+            script: """
+                curl -u '${USER}':'${PASSWORD}' \
+                https://foo.com/api/repositories/${repo}/tags/${tags}/vulnerability/details"""
+        ).trim()
+        return message
+    }
+}
+def harborScanResult (crudential, repo, tags="latest") {
+    def res = true
+    withCredentials([usernamePassword(
+                    credentialsId: "${crudential}",
+                    passwordVariable: 'PASSWORD',
+                    usernameVariable: 'USER')]) {
+        message = sh(
+            returnStdout: true,
+            script: """
+                curl -u '${USER}':'${PASSWORD}' \
+                https://foo.com/api/repositories/${repo}/tags/${tags}"""
+        ).trim()
+        def jsonSlurper = new JsonSlurper()
+        def t = jsonSlurper.parseText (message)
+        p = t.scan_overview.scan_status
+        
+        for (i in t.scan_overview.components.summary) {
+            if (i.severity == 5) { // High Security Issue
+                e = i.count.toString()
+                echo "Found Vulnerability (Severity:HIGH) found - count:${e}"
+                res = false
+            }
+        }
+    }
+    return res
+}
+/* // Usage
+	stage("Global Variable Test") {
+    	def res = harborScanResult("e860bb3e-d1ff-4bf2-96d1-abbb7e0e8a40", "base/centos")
+    	if (res == false)
+    	{
+    	    msg = harborScanResultDetail("e860bb3e-d1ff-4bf2-96d1-abbb7e0e8a40", "base/centos")
+    	    echo "$msg"
+    	    error("ERROR")
+    	}
+	}
+ */
