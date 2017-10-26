@@ -35,6 +35,17 @@ node('docker') {
     stage("Publish") {
         dependencyCheckPublisher canComputeNew: false,   pattern: '**/dependency-check-report.xml'
         archiveArtifacts allowEmptyArchive: true, artifacts: '**/dependency-check-report.xml', onlyIfSuccessful: true
+        
+        // 이슈가 있는지 체크함.
+        CNT =sh(
+            returnStdout: true,
+            script: """
+                cat dependency-check-report.csv  | grep ',HIGHEST,' | wc -l
+            """).trim()
+        if (CNT != "0") {
+            echo "HIGHEST LEVEL: $CNT"
+            error "Security ERROR!!"
+        }
     }
 }
 
