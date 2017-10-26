@@ -27,7 +27,7 @@ node('docker') {
             docker run --rm \
                 --volume ${DBPATH}:/usr/share/dependency-check/data \
                 --volume `pwd`:/src \
-                --volume `pwd`/data:/report \
+                --volume ${DBPATH}:/report \
                 owasp/dependency-check \
                 -f ALL --scan /src --project "ASDF" -n
         """
