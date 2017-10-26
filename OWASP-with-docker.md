@@ -33,12 +33,14 @@ docker pull owasp/dependency-check
 #업데이트 하기
 docker run --rm \
     --volume ${DBPATH}:/usr/share/dependency-check/data \
-    owasp --updateonly
+    owasp/dependency-check --updateonly
 # 실제 스캐닝
 docker run --rm \
     --volume ${DBPATH}:/usr/share/dependency-check/data \
-    owasp \
-    -f ALL -s . --project "ASDF" -n
+    --volume `pwd`:/src \
+    --volume `pwd`:/report \
+    owasp/dependency-check \
+    -f ALL --scan /src --project "ASDF" -n
 ```
 
 ## 젠킨스 연동
