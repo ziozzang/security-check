@@ -38,7 +38,7 @@ vmware harbor는 clair를 통해서 도커 cve체크가 가능함. dmz존에 두
 Clair 데이터베이스는 익스포트 임포트가 가능함
  * 관련 문서: https://github.com/vmware/harbor/blob/master/docs/import_vulnerability_data.md
 
-Security check 는 api가 제공되므로 아래의 api를 사용 하면 됨.(퍼블릭의 경우에는 로그인 파라미터 없이도 요청 가능) severity가 5인경우는 high이므로 주의 요망. 하지만 fixedVersion 이 존재 하지 않는 경우는 업데이트를 할수가 없는 상태임. (이 경우는 정책적으로 무시 하던가 기다리는 방법을 써야 함)
+Security check 는 api가 제공되므로 아래의 api를 사용 하면 됨.(퍼블릭의 경우에는 로그인 파라미터 없이도 요청 가능. 프라이빗의 경우 -u ID:PW 형태로 전달 하도록 함.) severity가 5인경우는 high이므로 주의 요망. 하지만 fixedVersion 이 존재 하지 않는 경우는 업데이트를 할수가 없는 상태임. (이 경우는 정책적으로 무시 하던가 기다리는 방법을 써야 함)
 
 ## 요약 시큐리티 정보
 
