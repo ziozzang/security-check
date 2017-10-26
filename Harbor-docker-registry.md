@@ -100,6 +100,23 @@ Security check 는 api가 제공되므로 아래의 api를 사용 하면 됨.(�
 ]
 ```
 
+## 전체 분석 요청
+```
+# 어드민만 요청 가능함.
+curl -u admin:password -X POST https://test.jioh.net/api/repositories/scanAll
+```
+
+## 특정 이미지 분석 요청
+
+```
+# 어드민만 요청 가능함.
+curl -u admin:password -X POST https://test.jioh.net/api/repositories/base/alpine/tags/latest/scan -i
+# 응답이 200이 떨어져야 함
+```
+
+## API 관련 문서
+* https://raw.githubusercontent.com/vmware/harbor/master/docs/swagger.yaml 링크를 참조 할 것.
+
 # notary 설정
 notary는 도커에서 만든 컨텐츠 사이닝 도구 임. 컨텐츠가 변조 되는지 확인이 가능한 보안 도구로 향후 컨테이너 이미지 사이닝을 하는데 도움이 될수 있을 것임.
 * 참고 문서: https://docs.docker.com/engine/security/trust/content_trust/
