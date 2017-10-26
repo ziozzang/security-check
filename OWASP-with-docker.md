@@ -43,6 +43,17 @@ docker run --rm \
     -f ALL --scan /src --project "ASDF" -n
 ```
 
+## 테스트 예제
+* tomcat-embed-core-8.0.33.jar 이 경우 CVE 이슈가 꽤 많음.
+```
+docker run --rm \
+  --volume ${DBPATH}:/usr/share/dependency-check/data \
+  --volume `pwd`:/src \
+  --volume `pwd`:/report \
+  owasp/dependency-check \
+  -f ALL --scan /src/tomcat-embed-core-8.0.33.jar --project "ASDF" -n
+```
+
 ## 젠킨스 연동
 * 플러그인 설치 필요함.
 * 빌드 후 처리 부분에
