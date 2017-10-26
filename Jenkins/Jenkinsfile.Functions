@@ -11,7 +11,7 @@ def harborRequestScan(crudential, repo, tags="latest") {
                 curl -s -o /dev/null -I -w '%{http_code}' \
                     -X POST \
                     -u '${USER}':'${PASSWORD}' \
-                    https://foo.com/repositories/${repo}/tags/${tags}/scan"""
+                    https://foo.com/api/repositories/${repo}/tags/${tags}/scan"""
         ).trim()
         return message
     }
