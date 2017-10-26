@@ -1,0 +1,41 @@
+
+node('docker') {
+    DBPATH="`pwd`/data"
+
+    stage ("download") {
+        // Rename for anonymize
+        sh "wget -O foo.jar http://central.maven.org/maven2/org/apache/tomcat/embed/tomcat-embed-core/8.0.33/tomcat-embed-core-8.0.33.jar"
+        sh "wget -O foo.zip http://archive.apache.org/dist/struts/2.3.32/struts-2.3.32-all.zip"
+    }
+    
+    stage ("DB download") {
+        sh "mkdir -p ${DBPATH}"
+        // 사실 권한은 ubuntu:ubuntu 임...
+        sh "chmod 777 ${DBPATH}"
+        // 최신 버전을 받기
+        sh "docker pull owasp/dependency-check"
+        // 업데이트 하기
+        sh """docker run --rm \
+            --volume ${DBPATH}:/usr/share/dependency-check/data \
+            owasp/dependency-check --updateonly
+        """
+    }
+    
+    stage ("check") {
+        // 실제 스캐닝
+        sh """
+            docker run --rm \
+                --volume ${DBPATH}:/usr/share/dependency-check/data \
+                --volume `pwd`:/src \
+                --volume `pwd`/data:/report \
+                owasp/dependency-check \
+                -f ALL --scan /src --project "ASDF" -n
+        """
+    }
+    stage("Publish") {
+        dependencyCheckPublisher canComputeNew: false,   pattern: '**/data/dependency-check-report.xml'
+        archiveArtifacts allowEmptyArchive: true, artifacts: '**/data/dependency-check-report.xml', onlyIfSuccessful: true
+    }
+}
+
+
