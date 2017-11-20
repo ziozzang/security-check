@@ -54,6 +54,14 @@ declare -x BD_HUB_PASSWORD="password_here"
   --host "foo.com" --port 443 --scheme HTTPS \
   --username "username_here" \
   --project "dir_scan" --release "directory:asdf" /opt/bd/
+  
+# Docker Inspector
+curl -O  https://blackducksoftware.github.io/hub-docker-inspector/hub-docker-inspector.sh
+bash <(curl -s https://blackducksoftware.github.io/hub-docker-inspector/hub-docker-inspector.sh) \
+  --hub.url=https://foo.com/ --hub.username=username_here \
+  --hub.project.name="PRJNAME" hub.project.version="version_name" \
+  --docker.image=bar.net/dir/server:tags
+
 ```
 
 # 주요 이슈
