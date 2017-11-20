@@ -13,7 +13,27 @@
 
 * https://jenkins.io/doc/pipeline/steps/blackduck-hub/ 참고
 
+```
+node {
 
+hub_scan bomUpdateMaximumWaitTime: '5',
+  cleanupOnSuccessfulScan: true,
+  codeLocationName: '',
+  deletePreviousCodeLocations: false,
+  dryRun: false,
+  excludePatterns: [[exclusionPattern: '']],
+  hubProjectName: 'asdf-prjnn',
+  hubProjectVersion: 'version:asdf',
+  hubVersionDist: 'EXTERNAL',
+  hubVersionPhase: 'PLANNING',
+  projectLevelAdjustments: true,
+  scanMemory: '4096',
+  scans: [[scanTarget: './']],
+  shouldGenerateHubReport: true,
+  unmapPreviousCodeLocations: false
+
+}
+```
 
 # 쉘 스크립트 연동
 * 블랙덕 허브에 로그인후에 유저 아이콘쪽 Tool섹션에 Hub Scanner 를 설치 해야 한다. 해당 스캐너는 JRE 환경을 요구 한다. headless로 설치 할 것.
