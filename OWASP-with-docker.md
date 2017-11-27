@@ -3,6 +3,13 @@
 * 홈페이지: https://www.owasp.org/index.php/OWASP_Dependency_Check
 
 * 해당 홈페이지에서 커맨드라인을 받아서 설치 함.
+```
+VERSION="3.0.2"
+wget http://dl.bintray.com/jeremy-long/owasp/dependency-check-${VERSION}-release.zip
+unzip dependency-check-${VERSION}-release.zip
+mv dependency-check /usr/local/
+ln -s /usr/local/dependency-check/bin/dependency-check.sh /usr/local/bin/dependency-check.sh
+```
 
 
 # 설치
@@ -13,10 +20,10 @@
 ## 깔아서 쓰는 경우
 ```
 # 업데이트만 하는 경우
-dependency-check.sh --updateonly -d /tmp/data/dc.h2.db
+dependency-check.sh --updateonly -d /opt/owasp/
 
 # 업데이트된 데이터베이스를 사용해서 현재위치에서 스캐닝. 프로젝트 이름을 꼭 지정해야 함.
-dependency-check.sh -f ALL -s . --project "ASDF" -n -d /tmp/data/dc.h2.db
+dependency-check.sh -f ALL -s /opt/test/ --project "ASDF" -d /opt/owasp/  -n
 ```
 
 ## 도커를 통해서 쓰는 경우
