@@ -23,7 +23,7 @@ ln -s /usr/local/dependency-check/bin/dependency-check.sh /usr/local/bin/depende
 dependency-check.sh --updateonly -d /opt/owasp/
 
 # 업데이트된 데이터베이스를 사용해서 현재위치에서 스캐닝. 프로젝트 이름을 꼭 지정해야 함.
-# 주의: 파이썬 등을 스캐닝 할때에는 --enableExperimental 옵션을 꼭 붙여 준다.
+# 주의: 파이썬, 루비 등을 스캐닝 할때에는 --enableExperimental 옵션을 꼭 붙여 준다.(노드는 오탐이 많아서 제거 되었다고 함)
 dependency-check.sh -f ALL -s /opt/test/ --project "ASDF" -d /opt/owasp/  -n --enableExperimental
 ```
 
