@@ -29,6 +29,9 @@ dependency-check.sh -f ALL -s /opt/test/ --project "ASDF" -d /opt/owasp/  -n --e
 
 ## 도커를 통해서 쓰는 경우
 
+* 원래 도커 버전은 https://hub.docker.com/r/owasp/dependency-check/ 에 있는데, 현재(2017년 11월 28일 기준) 리포트 생성시에 이슈가 생김. 이에 따라 https://hub.docker.com/r/ziozzang/owasp-dependency-check/ 에 새로 빌드 해서 올림(컨테이너 내부에서 루트 권한으로 동작 하도록 수정)
+
+
 * Update
 ```
 #!/bin/bash
