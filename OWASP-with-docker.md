@@ -29,26 +29,36 @@ dependency-check.sh -f ALL -s /opt/test/ --project "ASDF" -d /opt/owasp/  -n --e
 
 ## 도커를 통해서 쓰는 경우
 
+* Update
 ```
-DBPATH="`pwd`/data"
-
+#!/bin/bash
+DBPATH=/opt/owasp
 mkdir -p ${DBPATH}
-# 사실 권한은 ubuntu:ubuntu 임...
 chmod 777 ${DBPATH}
+docker pull ziozzang/owasp-dependency-check
+docker run --rm \
+    --volume ${DBPATH}:/usr/share/dependency-check/data \
+    ziozzang/owasp-dependency-check --updateonly
+```
 
-#최신 버전을 받기
-docker pull owasp/dependency-check
-#업데이트 하기
-docker run --rm \
-    --volume ${DBPATH}:/usr/share/dependency-check/data \
-    owasp/dependency-check --updateonly
-# 실제 스캐닝
-docker run --rm \
-    --volume ${DBPATH}:/usr/share/dependency-check/data \
-    --volume `pwd`:/src \
-    --volume `pwd`:/report \
-    owasp/dependency-check \
-    -f ALL --scan /src --project "ASDF" -n --enableExperimental
+* Scanning
+
+```
+#!/bin/bash
+DBPATH=/opt/owasp
+REPORT=/opt/report
+rm -rf ${REPORT}
+mkdir -p ${REPORT}
+
+CWD=`pwd`
+
+docker pull ziozzang/owasp-dependency-check
+docker run --rm   \
+ -v ${DBPATH}:/usr/share/dependency-check/data \
+ -v ${CWD}:/src \
+ -v ${REPORT}:/report/ \
+ ziozzang/owasp-dependency-check \
+ -n --enableExperimental -o /report/ -f ALL --scan /src --project "ASDF"
 ```
 
 ## 테스트 예제
